@@ -21,7 +21,7 @@ def direction(x):
     else:
         return -1
 
-def gradient_descent(data, learning_rate):
+def gradient_descent(data, learning_rate, ec):
     count = 0
     iter_error = []
     sse = 0
@@ -32,6 +32,8 @@ def gradient_descent(data, learning_rate):
         t = target(entry)
         o = direction(np.dot(entry, weight_vector))
         count += 1
+        if ec:
+            learning_rate = learning_rate/count
         delta_w += learning_rate * (t-o) * entry
         weight_vector += delta_w
         error += (t-o)*(t-o)
@@ -68,7 +70,7 @@ if __name__ == '__main__':
     data = np.random.uniform(x_min_range,x_max_range,size=[N,m])
     data = np.concatenate((np.ones([N,1]),data),axis=1)
 
-    iter_error = gradient_descent(data, 0.05)
+    iter_error = gradient_descent(data, 0.01, True)
 
     plt.plot([x[0] for x in iter_error], [y[1] for y in iter_error])
     plt.xlabel('Number of iterations')
