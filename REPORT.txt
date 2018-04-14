@@ -1,0 +1,78 @@
+RESULTS:
+
+MLP Error Scores:
+0.021
+0.018
+0.021
+0.021
+0.022
+0.029
+0.024
+0.018
+0.021
+0.020
+
+Mean = 0.021
+
+Decision Tree Error Scores:
+0.014
+0.022
+0.020
+0.016
+0.019
+0.013
+0.015
+0.017
+0.019
+0.017
+
+Mean = 0.017
+
+For a 95% confidence interval, we use t = 1.83
+Using error as our metric, we get t' = 2.48
+
+MLP F-measures
+0.614
+0.992
+1.195
+0.470
+0.154
+0.476
+0.280
+1.515
+0.907
+1.091
+
+Mean = 0.769
+
+Decision Tree F-measures
+4.320
+1.749
+3.840
+4.147
+2.489
+6.375
+3.120
+4.851
+2.489
+4.066
+
+Mean = 3.745
+
+For a 95% confidence interval, we use t = 1.83
+Using F-measure as our metric, we get t' = -6.82
+
+When using error as a metric, we typically see a slightly higher error rate for the MLP classifier than the decision tree classifier. On the last trial we ran, MLP had an average error rate of 0.021, while decision tree had an average error rate of .017. Our significance test showed that this difference in error rates was statistically significant. The t' value achieved in the aforementioned trial was 2.48, which is larger than our 95% t-value of 1.83. 
+
+When using F-measure as our metric, we see some pretty different results. the decision tree classifier shows a consistently higher F-measure than the MLP classifier. For example, in the last trial we ran, decision tree had an average F-measure of 3.745, while MLP had an average of 0.769. This difference showed to be statistically significant as well, with a t' value of -6.82 being reported. In looking at some of the predictions, we saw that the MLP classifier was consistently missing the negative classes. There were even some instances where it would not predict a single negative class. The precision is set to 0 any time that this happens. The decision tree was much better at identifying the negative classes, which showed in the much higher F-measures. 
+
+Because of the high imbalance in the dataset of positive and negative classes, we would take the F-measure significance tests as being much more valuable, and therefore conclude that the decision tree is a better classifier of the dataset than the MLP classifier.
+
+The results discussed above were with no settings changed in the decision tree classifier except setting the solver criterion to entropy. The only setting changed to the MLP classifer were setting the solver to gradient descent. 
+
+We found the ideal learning rate to be .01 because the default rate (.001) and a higher rate (.05) were resulting in the classifier predicting only postive values pretty frequently. We also found that the number of hidden layers being set to 200 had a significant impact on the F-measures, consistently increasing them. This increase in hidden layers does come with an increase in time, however. After 200, the increase in performance was negligible. Another thing that seemed to help performance a little bit was changing the learning rate type to "adaptive". Changing it to "invscaling" didnt impact the F-measure, but made error rate go way up, which we found particularly interesting. For the decision tree classifier, changing the criterion to "gini" as opposed to entropy seemed to consistently increase the F-measure.
+
+IDEAL CLASSIFIERS:
+MLPClassifier(solver="sgd",learning_rate="adaptive",learning_rate_init="200",hidden_layer_sizes="200")
+DecisionTreeClassifier(criterion="gini")
+ 

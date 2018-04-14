@@ -14,10 +14,10 @@ X = data[:,:6]
 y = data[:,6]
 
 # fit neural network classifier
-mlp = MLPClassifier(solver = 'sgd',learning_rate_init=.01)
+mlp = MLPClassifier(solver="sgd")
 
 # fit decision tree classifier
-dt = DecisionTreeClassifier(criterion="entropy")
+dt = DecisionTreeClassifier(criterion="gini")
 
 # create 10 stratified samples
 skf = StratifiedKFold(n_splits=10)
@@ -58,20 +58,22 @@ for train_index, test_index in skf.split(X,y):
 	# calculate precision, recall, and beta for F-measure
 	try:
 		mlp_precision = M["tp"] / (M["tp"] + M["fp"])
-	except ValueError:
+	except ZeroDivisionError:
 		mlp_precision = 0.0
 	mlp_recall = M["tp"] / (M["tp"] + M["fn"])
 	mlp_beta = M["fn"] / (M["fn"] + M["tp"])	
-	try:
-		dt_precision = D["tp"] / (D["tp"] + D["fp"])
-	except ValueError:
-		dt_precision = 0.0
+	
+	dt_precision = D["tp"] / (D["tp"] + D["fp"])
 	dt_recall = D["tp"] / (D["tp"] + D["fn"])
 	dt_beta = D["fn"] / (D["fn"] + D["tp"])
 
+	
 	# calculate and store F-measures
-	mlp_F = (pow(1 + mlp_beta,2) * mlp_precision * mlp_recall) / (pow(mlp_beta,2) * (mlp_precision + mlp_recall))
-	mlp_Fs.append(mlp_F)
+	try:
+		mlp_F = (pow(1 + mlp_beta,2) * mlp_precision * mlp_recall) / (pow(mlp_beta,2) * (mlp_precision + mlp_recall))
+		mlp_Fs.append(mlp_F)
+	except ZeroDivisionError:
+		mlp_Fs.append(0.0)
 	dt_F = (pow(1 + dt_beta,2) * dt_precision * dt_recall) / (pow(dt_beta,2) * (dt_precision + dt_recall))
 	dt_Fs.append(dt_F)
 
@@ -79,14 +81,20 @@ for train_index, test_index in skf.split(X,y):
 print "MLP Error Scores:"
 for e in mlp_errors:
 	print "%0.3f" % e
+
 print ""
+print "Mean = %0.3f" % float(float(sum(mlp_errors)) / float(len(mlp_errors)))
+print ""
+
 print "Decision Tree Error Scores:"
 for e in dt_errors:
 	print "%0.3f" % e
-	
+print ""
+print "Mean = %0.3f" % float(float(sum(dt_errors)) / float(len(dt_errors)))
+print ""
+
 # perform significance test with error as metric
 T = 1.83
-
 ED = [] # ED = Error Differences
 for i in range(10):
 	ED.append(mlp_errors[i] - dt_errors[i])
@@ -105,9 +113,15 @@ print "MLP F-measures"
 for F in mlp_Fs:
 	print "%0.3f" % F
 print ""
+print "Mean = %0.3f" % float(float(sum(mlp_Fs)) / float(len(mlp_Fs)))
+print ""
+
 print "Decision Tree F-measures"
 for F in dt_Fs:
 	print "%0.3f" % F
+print ""
+print "Mean = %0.3f" % float(float(sum(dt_Fs)) / float(len(dt_Fs)))
+print ""
 
 # perform significance test with F-measure as metric
 T = 1.83
